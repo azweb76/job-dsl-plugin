@@ -49,4 +49,46 @@ class DownstreamTriggerParameterFactoryContextSpec extends Specification {
         where:
         action << [null, '', 'FOO']
     }
+
+    def 'forParameterMatchingFiles with minimum options'() {
+        when:
+        context.forParameterMatchingFiles('foo')
+
+        then:
+        context.configFactories.size() == 1
+        with(context.configFactories[0]) {
+            name() == 'hudson.plugins.parameterizedtrigger.FileBuildParameterFactory'
+            children().size() == 2
+            filePattern.text() == 'foo'
+            noFilesFoundAction.text() == 'SKIP'
+        }
+    }
+
+    def 'forParameterMatchingFiles with all options'() {
+        when:
+        context.forParameterMatchingFiles('foo', action)
+
+        then:
+        context.configFactories.size() == 1
+        with(context.configFactories[0]) {
+            name() == 'hudson.plugins.parameterizedtrigger.FileBuildParameterFactory'
+            children().size() == 2
+            filePattern.text() == 'foo'
+            noFilesFoundAction.text() == action
+        }
+
+        where:
+        action << ['SKIP', 'NOPARMS', 'FAIL']
+    }
+
+    def 'forParameterMatchingFiles with invalid action'() {
+        when:
+        context.forParameterMatchingFiles('foo', action)
+
+        then:
+        thrown(DslScriptException)
+
+        where:
+        action << [null, '', 'FOO']
+    }
 }

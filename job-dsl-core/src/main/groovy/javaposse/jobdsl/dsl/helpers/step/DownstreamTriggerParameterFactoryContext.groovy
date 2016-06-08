@@ -26,4 +26,22 @@ class DownstreamTriggerParameterFactoryContext implements Context {
             delegate.noFilesFoundAction(noFilesFoundAction)
         }
     }
+
+    /**
+     * Looks for files that match the specified pattern in the current build, then for each of them trigger a build of
+     * the specified project(s) by passing that file as parameters.
+     *
+     * The {@code noFilesFoundAction} must be one of {@code 'SKIP'}, {@code 'NOPARMS'} or {@code 'FAIL'}.
+     */
+    void forParameterMatchingFiles(String filePattern, String noFilesFoundAction = 'SKIP') {
+        Preconditions.checkArgument(
+                VALID_NO_FIILES_FOUND_ACTIONS.contains(noFilesFoundAction),
+                "noFilesFoundAction must be one of ${VALID_NO_FIILES_FOUND_ACTIONS.join(', ')}"
+        )
+
+        configFactories << new NodeBuilder().'hudson.plugins.parameterizedtrigger.FileBuildParameterFactory' {
+            delegate.filePattern(filePattern)
+            delegate.noFilesFoundAction(noFilesFoundAction)
+        }
+    }
 }
